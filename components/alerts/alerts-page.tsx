@@ -125,12 +125,16 @@ export function AlertsPage() {
 
       for (const campaign of CAMPAIGNS_CONFIG) {
         try {
-          const response = await fetch(campaign.url, {
-            headers: {
-              Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          });
+          const response = await fetch(
+            `/.netlify/functions/genesys-proxy?url=${encodeURIComponent(campaign.url)}`,
+            {
+              headers: {
+                Authorization: token.startsWith('Bearer ')
+                  ? token
+                  : `Bearer ${token}`,
+              },
+            }
+          );
 
           if (!response.ok) {
             console.error(`Error fetching ${campaign.name}: ${response.status}`);
