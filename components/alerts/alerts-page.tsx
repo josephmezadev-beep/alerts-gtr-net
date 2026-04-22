@@ -60,6 +60,15 @@ export function AlertsPage() {
           const threshold = getThresholdMinutes(statusValue, source);
 
           if (threshold > 0 && elapsedMinutes > threshold) {
+
+            if (
+                statusValue === 'Offline' &&
+                source === 'presence' &&
+                elapsedMinutes > 5
+              ) {
+                return agentAlerts;
+            }
+
             const agentId = `${campaign.id}-${user.name}-presence-${statusValue}`;
 
             agentAlerts.push({

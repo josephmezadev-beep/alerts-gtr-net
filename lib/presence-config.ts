@@ -102,6 +102,13 @@ export const STATUS_MONITOR_CONFIG: StatusMonitorConfig[] = [
     thresholdMinutes: 2,
     color: 'bg-purple-500',
   },
+  {
+    statusValue: 'Offline',
+    source: 'presence',
+    displayName: 'Desconectado',
+    thresholdMinutes: 5,
+    color: 'bg-gray-500',
+  },
   // {
   //   statusValue: 'offline',
   //   source: 'presence',
