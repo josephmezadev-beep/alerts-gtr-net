@@ -175,7 +175,7 @@ export function AlertsPage() {
 
   useEffect(() => {
     fetchAlerts();
-    const interval = setInterval(fetchAlerts, 20000); // Actualiza cada 1 minuto
+    const interval = setInterval(fetchAlerts, 5000); // Actualiza cada 1 minuto
     return () => clearInterval(interval);
   }, [fetchAlerts]);
 
