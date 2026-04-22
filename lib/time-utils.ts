@@ -13,8 +13,8 @@ export function getCurrentPeruTime(): Date {
 }
 
 export function getElapsedMinutes(modifiedDateString: string): number {
-  const modifiedDate = convertToPeruTime(modifiedDateString);
-  const currentTime = getCurrentPeruTime();
+  const modifiedDate = new Date(modifiedDateString);
+  const currentTime = new Date();
   return differenceInMinutes(currentTime, modifiedDate);
 }
 
