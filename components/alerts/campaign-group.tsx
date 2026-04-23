@@ -26,12 +26,12 @@ export function CampaignGroup({ campaignName, agents, stats, queueMetrics }: Cam
         </div>
         <div className="flex items-center gap-3">
           <h2 className="text-lg font-semibold text-gray-100">{campaignName}</h2>
-          <div className="flex items-center gap-1 rounded-full bg-red-500/20 px-2 py-0.5 text-xs text-red-400">
+          <div className="flex items-center gap-1 rounded-full bg-red-500/20 px-2 py-0.5 text-red-400">
             <Users className="h-3 w-3" />
             <span>{agents.length} alerta{agents.length !== 1 ? 's' : ''}</span>
           </div>
         </div>
-        <div className="flex gap-3 text-xs text-gray-400">
+        <div className="flex gap-3tex text-gray-400">
           <span>
             👥{' '}
             <span className="text-green-400">
