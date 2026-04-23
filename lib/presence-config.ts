@@ -9,26 +9,31 @@ export const CAMPAIGNS_CONFIG: Campaign[] = [
     id: 'c2c-privado',
     name: 'C2C Privado',
     url: 'https://api.mypurecloud.com/api/v2/routing/queues/0fd68d9a-be6d-4878-b743-3591f6d9eafc/users?queueId=0fd68d9a-be6d-4878-b743-3591f6d9eafc&pageSize=50&pageNumber=1&joined=true&sortBy=name&sortOrder=asc&expand=routingStatus%2CprimaryPresence%2Cpresence%2C',
+    queueId: '0fd68d9a-be6d-4878-b743-3591f6d9eafc'
   },
   {
     id: 'c2c-publico',
     name: 'C2C Publico',
     url: 'https://api.mypurecloud.com/api/v2/routing/queues/565a3fa3-3f67-44e8-8d6d-9cb8a24a7101/users?queueId=565a3fa3-3f67-44e8-8d6d-9cb8a24a7101&pageSize=50&pageNumber=1&joined=true&sortBy=name&sortOrder=asc&expand=routingStatus%2CprimaryPresence%2Cpresence%2C',
+    queueId: '565a3fa3-3f67-44e8-8d6d-9cb8a24a7101'
   },
   {
     id: 'rmkt-publico',
     name: 'RMKT Publico',
     url: 'https://api.mypurecloud.com/api/v2/routing/queues/ca4d2353-f97f-4d85-bcd0-32f1484bf3cd/users?queueId=ca4d2353-f97f-4d85-bcd0-32f1484bf3cd&pageSize=50&pageNumber=1&joined=true&sortBy=name&sortOrder=asc&expand=routingStatus%2CprimaryPresence%2Cpresence%2C',
+    queueId: 'ca4d2353-f97f-4d85-bcd0-32f1484bf3cd'
   },
   {
     id: 'rmkt-privado',
     name: 'RMKT Privado',
     url: 'https://api.mypurecloud.com/api/v2/routing/queues/c164bddb-4957-4022-b0ba-2a9fc5bbdb53/users?queueId=c164bddb-4957-4022-b0ba-2a9fc5bbdb53&pageSize=50&pageNumber=1&joined=true&sortBy=name&sortOrder=asc&expand=routingStatus%2CprimaryPresence%2Cpresence%2C',
+    queueId: 'c164bddb-4957-4022-b0ba-2a9fc5bbdb53'
   },
   {
     id: 'inbound',
     name: 'Inbound',
     url: 'https://api.mypurecloud.com/api/v2/routing/queues/59a585b9-5c12-4152-bc8d-0546d99ce60c/users?queueId=59a585b9-5c12-4152-bc8d-0546d99ce60c&pageSize=50&pageNumber=1&joined=true&sortBy=name&sortOrder=asc&expand=routingStatus%2CprimaryPresence%2Cpresence%2C',
+    queueId: '59a585b9-5c12-4152-bc8d-0546d99ce60c'
   },
   // Agrega más campañas aquí...
   // {

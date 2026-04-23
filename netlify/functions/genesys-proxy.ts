@@ -9,7 +9,8 @@ export async function handler(event: any) {
       };
     }
 
-    const authHeader = event.headers.authorization || event.headers.Authorization;
+    const authHeader =
+      event.headers.authorization || event.headers.Authorization;
 
     if (!authHeader) {
       return {
@@ -18,21 +19,30 @@ export async function handler(event: any) {
       };
     }
 
-    const response = await fetch(url, {
-      method: "GET",
+    // 🔥 NUEVO: detectar método dinámicamente
+    const method = event.httpMethod || "GET";
+
+    const options: any = {
+      method,
       headers: {
         Authorization: authHeader,
         "Content-Type": "application/json",
       },
-    });
+    };
 
-    const data = await response.json();
+    // 🔥 NUEVO: reenviar body si es POST / PUT
+    if (method !== "GET" && event.body) {
+      options.body = event.body;
+    }
+
+    const response = await fetch(url, options);
+
+    const text = await response.text();
 
     return {
       statusCode: response.status,
-      body: JSON.stringify(data),
+      body: text,
     };
-
   } catch (error: any) {
     return {
       statusCode: 500,

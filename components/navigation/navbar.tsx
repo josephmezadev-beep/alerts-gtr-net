@@ -31,7 +31,7 @@ export function Navbar() {
               <Activity className="relative h-8 w-8 text-cyan-400" />
             </div>
             <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-xl font-bold tracking-wider text-transparent">
-              CC MONITOR
+              GTR MONITOR
             </span>
           </Link>
 

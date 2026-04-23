@@ -33,23 +33,28 @@ export function AlertsPage() {
   const [error, setError] = useState<string | null>(null);
   const notifiedAgentsRef = useRef(notifiedAgents);
 
+  const [campaignStats, setCampaignStats] = useState<
+    Record<string, { total: number; connected: number }>
+  >({});
+
+  const [queueMetrics, setQueueMetrics] = useState<
+    Record<string, { interacting: number; waiting: number }>
+  >({});
+
   useEffect(() => {
     notifiedAgentsRef.current = notifiedAgents;
   }, [notifiedAgents]);
 
+  // ---------------------------
+  // Procesar agentes
+  // ---------------------------
   const processAgent = useCallback(
-    (
-      entity: QueueResponse['entities'][0],
-      campaign: (typeof CAMPAIGNS_CONFIG)[0]
-    ): AlertAgent[] => {
+    (entity: QueueResponse['entities'][0], campaign: (typeof CAMPAIGNS_CONFIG)[0]): AlertAgent[] => {
       const agentAlerts: AlertAgent[] = [];
       const user = entity.user;
 
       if (!user?.name) return agentAlerts;
 
-      // -------------------------------------------------
-      // Procesar estados desde PRESENCE
-      // -------------------------------------------------
       if (user.presence?.presenceDefinition?.systemPresence) {
         const statusValue = user.presence.presenceDefinition.systemPresence;
         const source: StatusSource = 'presence';
@@ -60,19 +65,10 @@ export function AlertsPage() {
           const threshold = getThresholdMinutes(statusValue, source);
 
           if (threshold > 0 && elapsedMinutes > threshold) {
-
-            if (
-                statusValue === 'Offline' &&
-                source === 'presence' &&
-                elapsedMinutes > 5
-              ) {
-                return agentAlerts;
-            }
-
-            const agentId = `${campaign.id}-${user.name}-presence-${statusValue}`;
+            if (statusValue === 'Offline' && elapsedMinutes > 5) return agentAlerts;
 
             agentAlerts.push({
-              id: agentId,
+              id: `${campaign.id}-${user.name}-presence-${statusValue}`,
               name: user.name,
               campaignName: campaign.name,
               campaignId: campaign.id,
@@ -87,9 +83,6 @@ export function AlertsPage() {
         }
       }
 
-      // -------------------------------------------------
-      // Procesar estados desde ROUTING STATUS
-      // -------------------------------------------------
       if (user.routingStatus?.status) {
         const statusValue = user.routingStatus.status;
         const source: StatusSource = 'routingStatus';
@@ -100,10 +93,8 @@ export function AlertsPage() {
           const threshold = getThresholdMinutes(statusValue, source);
 
           if (threshold > 0 && elapsedMinutes > threshold) {
-            const agentId = `${campaign.id}-${user.name}-routing-${statusValue}`;
-
             agentAlerts.push({
-              id: agentId,
+              id: `${campaign.id}-${user.name}-routing-${statusValue}`,
               name: user.name,
               campaignName: campaign.name,
               campaignId: campaign.id,
@@ -123,47 +114,123 @@ export function AlertsPage() {
     []
   );
 
+  // ---------------------------
+  // Fetch métricas de cola
+  // ---------------------------
+  const fetchQueueMetrics = async (queueId: string) => {
+    const response = await fetch(
+      '/.netlify/functions/genesys-proxy?url=' +
+        encodeURIComponent(
+          'https://api.mypurecloud.com/api/v2/analytics/queues/observations/query'
+        ),
+      {
+        method: 'POST',
+        headers: {
+          Authorization: token.startsWith('Bearer ')
+            ? token
+            : `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          filter: {
+            type: 'and',
+            predicates: [
+              { type: 'dimension', dimension: 'queueId', operator: 'matches', value: queueId },
+              { type: 'dimension', dimension: 'mediaType', operator: 'matches', value: 'voice' },
+            ],
+          },
+          metrics: ['oWaiting', 'oInteracting'],
+          groupBy: ['queueId', 'mediaType'],
+        }),
+      }
+    );
+
+    if (!response.ok) return { interacting: 0, waiting: 0 };
+
+    const data = await response.json();
+    const results = data.results ?? [];
+
+    let interacting = 0;
+    let waiting = 0;
+
+    for (const group of results) {
+      for (const metric of group.data ?? []) {
+        if (metric.metric === 'oInteracting') {
+          interacting += metric.stats?.count ?? 0;
+        }
+        if (metric.metric === 'oWaiting') {
+          waiting += metric.stats?.count ?? 0;
+        }
+      }
+    }
+
+    return { interacting, waiting };
+  };
+
+  // ---------------------------
+  // Fetch principal
+  // ---------------------------
   const fetchAlerts = useCallback(async () => {
-    if (!token || CAMPAIGNS_CONFIG.length === 0) return;
+    if (!token) return;
 
     setIsLoading(true);
     setError(null);
 
     try {
       const allAlerts: AlertAgent[] = [];
+      const stats: Record<string, { total: number; connected: number }> = {};
+      const queueStats: Record<string, { interacting: number; waiting: number }> = {};
 
-      for (const campaign of CAMPAIGNS_CONFIG) {
-        try {
-          const response = await fetch(
-            `/.netlify/functions/genesys-proxy?url=${encodeURIComponent(campaign.url)}`,
-            {
-              headers: {
-                Authorization: token.startsWith('Bearer ')
-                  ? token
-                  : `Bearer ${token}`,
-              },
+      await Promise.all(
+        CAMPAIGNS_CONFIG.map(async (campaign) => {
+          try {
+            // 🔥 Fetch cola
+            const queueData = await fetchQueueMetrics(campaign.queueId);
+            queueStats[campaign.name] = queueData;
+
+            // 🔥 Fetch agentes
+            const response = await fetch(
+              `/.netlify/functions/genesys-proxy?url=${encodeURIComponent(campaign.url)}`,
+              {
+                headers: {
+                  Authorization: token.startsWith('Bearer ')
+                    ? token
+                    : `Bearer ${token}`,
+                },
+              }
+            );
+
+            if (!response.ok) return;
+
+            const data: QueueResponse = await response.json();
+
+            for (const entity of data.entities || []) {
+              const user = entity.user;
+
+              if (user?.name) {
+                if (!stats[campaign.name]) {
+                  stats[campaign.name] = { total: 0, connected: 0 };
+                }
+
+                stats[campaign.name].total++;
+
+                const presence = user.presence?.presenceDefinition?.systemPresence;
+                if (presence && presence !== 'Offline') {
+                  stats[campaign.name].connected++;
+                }
+              }
+
+              allAlerts.push(...processAgent(entity, campaign));
             }
-          );
-
-          if (!response.ok) {
-            console.error(`Error fetching ${campaign.name}: ${response.status}`);
-            continue;
+          } catch (err) {
+            console.error(`Error en ${campaign.name}`, err);
           }
-
-          const data: QueueResponse = await response.json();
-
-          if (data.entities) {
-            for (const entity of data.entities) {
-              const agentAlerts = processAgent(entity, campaign);
-              allAlerts.push(...agentAlerts);
-            }
-          }
-        } catch (err) {
-          console.error(`Error processing ${campaign.name}:`, err);
-        }
-      }
+        })
+      );
 
       setAlerts(allAlerts);
+      setCampaignStats(stats);
+      setQueueMetrics(queueStats);
       setLastUpdate(new Date());
 
       if (notificationsEnabled) {
@@ -175,23 +242,20 @@ export function AlertsPage() {
         }
       }
     } catch (err) {
-      setError('Error al obtener datos. Verifica tu token y conexión.');
-      console.error('Fetch error:', err);
+      setError('Error al obtener datos.');
     } finally {
       setIsLoading(false);
     }
-  }, [token, setAlerts, notificationsEnabled, sendNotification, addNotifiedAgent, processAgent]);
+  }, [token, processAgent]);
 
   useEffect(() => {
     fetchAlerts();
-    const interval = setInterval(fetchAlerts, 5000); // Actualiza cada 1 minuto
+    const interval = setInterval(fetchAlerts, 5000);
     return () => clearInterval(interval);
   }, [fetchAlerts]);
 
   const groupedAlerts = alerts.reduce<Record<string, AlertAgent[]>>((acc, alert) => {
-    if (!acc[alert.campaignName]) {
-      acc[alert.campaignName] = [];
-    }
+    if (!acc[alert.campaignName]) acc[alert.campaignName] = [];
     acc[alert.campaignName].push(alert);
     return acc;
   }, {});
@@ -284,8 +348,17 @@ export function AlertsPage() {
           </div>
         ) : (
           <div className="space-y-8">
-            {Object.entries(groupedAlerts).map(([campaignName, agents]) => (
-              <CampaignGroup key={campaignName} campaignName={campaignName} agents={agents} />
+            {/* {Object.entries(groupedAlerts).map(([campaignName, agents]) => (
+              <CampaignGroup key={campaignName} campaignName={campaignName} agents={agents} stats={campaignStats[campaignName]} />
+            ))} */}
+            {CAMPAIGNS_CONFIG.map((campaign) => (
+              <CampaignGroup
+                key={campaign.name}
+                campaignName={campaign.name}
+                agents={groupedAlerts[campaign.name] || []}
+                stats={campaignStats[campaign.name]}
+                queueMetrics={queueMetrics[campaign.name]}
+              />
             ))}
           </div>
         )}

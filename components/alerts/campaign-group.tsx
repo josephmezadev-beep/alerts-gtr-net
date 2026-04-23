@@ -7,9 +7,17 @@ import { AlertCard } from './alert-card';
 interface CampaignGroupProps {
   campaignName: string;
   agents: AlertAgent[];
+  stats?: {
+    total: number;
+    connected: number;
+  };
+  queueMetrics?: {
+    interacting: number;
+    waiting: number;
+  };
 }
 
-export function CampaignGroup({ campaignName, agents }: CampaignGroupProps) {
+export function CampaignGroup({ campaignName, agents, stats, queueMetrics }: CampaignGroupProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
@@ -22,6 +30,22 @@ export function CampaignGroup({ campaignName, agents }: CampaignGroupProps) {
             <Users className="h-3 w-3" />
             <span>{agents.length} alerta{agents.length !== 1 ? 's' : ''}</span>
           </div>
+          <div className="flex items-center gap-2 text-xs text-gray-400">
+          <span>Total: {stats?.total ?? 0}</span>
+          <span>•</span>
+          <span className="text-green-400">
+            Conectados: {stats?.connected ?? 0}
+          </span>
+          <span>•</span>
+          <span className="text-red-400">
+            Desconectados: {(stats?.total ?? 0) - (stats?.connected ?? 0)}
+          </span>
+        </div>
+        </div>
+        <div className="flex gap-3 text-xs text-gray-400">
+          <span>👥 {stats?.connected ?? 0}/{stats?.total ?? 0}</span>
+          <span>📞 {queueMetrics?.interacting ?? 0}</span>
+          <span>⏳ {queueMetrics?.waiting ?? 0}</span>
         </div>
       </div>
 

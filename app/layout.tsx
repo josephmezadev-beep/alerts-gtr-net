@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'CC Monitor Pro - Sistema de Monitoreo de Call Center',
+  title: 'GTR Monitor - Sistema de Monitoreo',
   description:
-    'Monitor en tiempo real para agentes de call center con alertas inteligentes y notificaciones de Windows.',
+    'Monitor en tiempo real para agentes de call center',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -55,6 +55,13 @@ export default function RootLayout({
         <Navbar />
         <main>{children}</main>
         {process.env.NODE_ENV === 'production' && <Analytics />}
+        <footer className="mt-auto w-full bg-[#111111] border-t border-gray-800">
+          <div className="mx-auto max-w-7xl px-4 py-4 text-center">
+            <p className="text-sm text-gray-400">
+              Desarrollado por <span className="text-gray-200">Joseph Omar Meza Torres</span>
+            </p>
+          </div>
+        </footer>
       </body>
     </html>
   );
