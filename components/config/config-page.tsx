@@ -2,7 +2,6 @@
 
 import { TokenForm } from './token-form';
 // import { CampaignForm } from './campaign-form';
-import { PresenceThresholdsInfo } from './presence-thresholds-info';
 import { Zap, Code } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -70,8 +69,6 @@ export const STATUS_MONITOR_CONFIG = [
               </div>
             </CardContent>
           </Card> */}
-
-          <PresenceThresholdsInfo />
         </div>
       </div>
     </div>

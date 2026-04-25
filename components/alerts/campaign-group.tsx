@@ -1,12 +1,12 @@
 'use client';
 
 import { Radio, Users } from 'lucide-react';
-import type { AlertAgent } from '@/lib/types';
+import type { Alert } from '@/lib/types';
 import { AlertCard } from './alert-card';
 
 interface CampaignGroupProps {
   campaignName: string;
-  agents: AlertAgent[];
+  agents: Alert[];
   stats?: {
     total: number;
     connected: number;
@@ -31,13 +31,9 @@ export function CampaignGroup({ campaignName, agents, stats, queueMetrics }: Cam
             <span>{agents.length} alerta{agents.length !== 1 ? 's' : ''}</span>
           </div>
         </div>
-        <div className="flex gap-3tex text-gray-400">
+        <div className="flex gap-3 text-gray-400">
           <span>
-            👥{' '}
-            <span className="text-green-400">
-              {stats?.connected ?? 0}
-            </span>
-            /{stats?.total ?? 0}
+            👥 <span className="text-green-400">{stats?.connected ?? 0}</span>/{stats?.total ?? 0}
           </span>
 
           <span>📞 {queueMetrics?.interacting ?? 0}</span>
@@ -48,7 +44,7 @@ export function CampaignGroup({ campaignName, agents, stats, queueMetrics }: Cam
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {agents.map((agent) => (
-          <AlertCard key={agent.id} agent={agent} />
+          <AlertCard key={agent.name} agent={agent} />
         ))}
       </div>
     </div>

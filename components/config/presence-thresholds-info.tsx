@@ -2,7 +2,6 @@
 
 import { Clock, Info, Database, Radio } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { STATUS_MONITOR_CONFIG, CAMPAIGNS_CONFIG } from '@/lib/presence-config';
 
 export function PresenceThresholdsInfo() {
   const presenceStatuses = STATUS_MONITOR_CONFIG.filter((c) => c.source === 'presence');

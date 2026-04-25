@@ -1,16 +1,13 @@
-'use client';
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { AlertAgent } from './types';
+import type { Alert } from './types';
 
 interface AppState {
-  token: string;
-  alerts: AlertAgent[];
+  alerts: Alert[];
   notificationsEnabled: boolean;
   notifiedAgents: Set<string>;
-  setToken: (token: string) => void;
-  setAlerts: (alerts: AlertAgent[]) => void;
+
+  setAlerts: (alerts: Alert[]) => void;
   setNotificationsEnabled: (enabled: boolean) => void;
   addNotifiedAgent: (agentId: string) => void;
   clearNotifiedAgents: () => void;
@@ -19,25 +16,30 @@ interface AppState {
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
-      token: '',
       alerts: [],
       notificationsEnabled: false,
       notifiedAgents: new Set<string>(),
-      setToken: (token) => set({ token }),
+
       setAlerts: (alerts) => set({ alerts }),
-      setNotificationsEnabled: (enabled) => set({ notificationsEnabled: enabled }),
+
+      setNotificationsEnabled: (enabled) =>
+        set({ notificationsEnabled: enabled }),
+
       addNotifiedAgent: (agentId) =>
         set((state) => {
           const newSet = new Set(state.notifiedAgents);
           newSet.add(agentId);
           return { notifiedAgents: newSet };
         }),
-      clearNotifiedAgents: () => set({ notifiedAgents: new Set<string>() }),
+
+      clearNotifiedAgents: () =>
+        set({ notifiedAgents: new Set<string>() }),
     }),
     {
       name: 'callcenter-monitor-storage',
+
+      // 👇 ya no guardas token
       partialize: (state) => ({
-        token: state.token,
         notificationsEnabled: state.notificationsEnabled,
       }),
     }
