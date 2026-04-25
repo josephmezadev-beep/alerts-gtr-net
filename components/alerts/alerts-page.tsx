@@ -50,7 +50,6 @@ export function AlertsPage() {
   // FETCH ALERTS
   // -----------------------------
   const fetchAlerts = useCallback(async () => {
-
     setIsLoading(true);
     setError(null);
 
@@ -58,26 +57,46 @@ export function AlertsPage() {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/dashboard`
       );
-      console.log(res)
+
       if (!res.ok) throw new Error('Error backend');
 
       const data: BackendQueueResponse[] = await res.json();
+      console.log(data);
 
       setQueuesData(data);
 
-      const allAlerts = data.flatMap((q) => q.alerts ?? []);
-      setAlerts(allAlerts);
+      // -----------------------------------------
+      // 🔥 ALERTS + NOTIFICATIONS (SIN FLATMAP)
+      // -----------------------------------------
+      const normalizedAlerts: any[] = [];
 
-      // notifications
-      if (notificationsEnabled) {
-        for (const alert of allAlerts) {
-          if (!notifiedAgents.has(alert.name)) {
-            sendNotification(alert);
-            addNotifiedAgent(alert.name);
+      for (const queue of data) {
+        const alerts = queue.alerts ?? [];
+
+        for (const alert of alerts) {
+          if (!alert?.name) continue;
+
+          normalizedAlerts.push(alert);
+
+          // -----------------------------
+          // 🔔 NOTIFICATIONS
+          // -----------------------------
+          if (notificationsEnabled) {
+            if (!notifiedAgents.has(alert.name)) {
+              sendNotification({
+                alert,
+                campaignName: queue.name,
+              });
+
+              addNotifiedAgent(alert.name);
+            }
           }
         }
       }
+
+      setAlerts(normalizedAlerts);
     } catch (e) {
+      console.log(e);
       setError('Error al obtener datos');
     } finally {
       setIsLoading(false);
@@ -98,7 +117,7 @@ export function AlertsPage() {
 
     fetchAlerts();
 
-    const interval = setInterval(fetchAlerts, 10000);
+    const interval = setInterval(fetchAlerts, 5000);
     return () => clearInterval(interval);
   }, [mounted, fetchAlerts]);
 

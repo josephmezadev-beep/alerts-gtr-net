@@ -1,11 +1,17 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import type { AlertAgent } from '@/lib/types';
+import type { Alert } from '@/lib/types';
 import { formatElapsedTime } from '@/lib/time-utils';
 
+type NotifyParams = {
+  alert: Alert;
+  campaignName: string;
+};
+
 export function useNotifications() {
-  const [permission, setPermission] = useState<NotificationPermission>('default');
+  const [permission, setPermission] =
+    useState<NotificationPermission>('default');
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'Notification' in window) {
@@ -23,16 +29,18 @@ export function useNotifications() {
   }, []);
 
   const sendNotification = useCallback(
-    (agent: AlertAgent) => {
+    ({ alert, campaignName }: NotifyParams) => {
       if (permission !== 'granted') return;
 
       const title = `⚠️ Alerta de Tiempo Excedido`;
-      const body = `${agent.name} - ${agent.campaignName}\n${agent.displayPresence}: ${formatElapsedTime(agent.elapsedMinutes)} (Límite: ${agent.threshold} min)`;
+
+      const body = `${alert.name} - ${campaignName}
+${alert.status_name}: ${formatElapsedTime(alert.elapsed)} (Límite: ${alert.threshold} min)`;
 
       const notification = new Notification(title, {
         body,
         icon: '/icon.svg',
-        tag: agent.id,
+        tag: alert.name,
         requireInteraction: true,
       });
 

@@ -22,10 +22,10 @@ function getLevelStyles(level?: string) {
 
     case 'warning':
       return {
-        border: 'border-amber-500/40',
-        glow: 'shadow-amber-500/10',
-        badge: 'bg-amber-500/20 text-amber-400',
-        dot: 'bg-amber-500',
+        border: 'border-green-500/40',
+        glow: 'shadow-green-500/10',
+        badge: 'bg-green-500/20 text-green-400',
+        dot: 'bg-green-500',
       };
 
     default:
@@ -65,7 +65,7 @@ export function AlertCard({ agent }: AlertCardProps) {
               <h3 className="font-semibold text-gray-100 leading-tight">
                 {agent.name}
               </h3>
-              <p className="text-xs text-gray-400">{agent.status}</p>
+              <p className="text-xs text-gray-400">{agent.status_name}</p>
             </div>
           </div>
 
@@ -80,7 +80,7 @@ export function AlertCard({ agent }: AlertCardProps) {
           <div className="flex items-center gap-2">
             <div className={cn('h-2 w-2 animate-pulse rounded-full', styles.dot)} />
             <span className="text-sm font-medium text-gray-300">
-              {agent.status}
+              {agent.status_name}
             </span>
           </div>
 
@@ -94,9 +94,9 @@ export function AlertCard({ agent }: AlertCardProps) {
 
         {/* FOOTER */}
         <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-          <span>Límite: {agent.threshold} min</span>
+          <span>Límite: {agent.threshold ?? '-'} min</span>
           <span className="text-gray-400">
-            Exceso: {formatElapsedTime(overTime)}
+            Exceso: {formatElapsedTime(overTime) ?? '-'}
           </span>
         </div>
       </div>

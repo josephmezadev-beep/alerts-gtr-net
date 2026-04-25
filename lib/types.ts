@@ -7,6 +7,7 @@ export interface Campaign {
 export interface Alert {
   name: string;
   status: string;
+  status_name: string;
   source: string;
   elapsed: number;
   threshold: number;

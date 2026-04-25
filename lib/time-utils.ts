@@ -22,11 +22,19 @@ export function formatPeruTime(date: Date): string {
   return format(date, 'HH:mm:ss', { timeZone: PERU_TIMEZONE });
 }
 
-export function formatElapsedTime(minutes: number): string {
+export function formatElapsedTime(seconds: number): string {
+  if (seconds < 60) {
+    return `${seconds}s`;
+  }
+
+  const minutes = Math.floor(seconds / 60);
+
   if (minutes < 60) {
     return `${minutes} min`;
   }
+
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
+
   return `${hours}h ${remainingMinutes}min`;
 }
