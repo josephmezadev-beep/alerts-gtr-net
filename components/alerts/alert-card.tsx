@@ -41,7 +41,7 @@ function getLevelStyles(level?: string) {
 export function AlertCard({ agent }: AlertCardProps) {
   const styles = getLevelStyles(agent.level);
 
-  const overTime = agent.elapsed - agent.threshold;
+  const overTime = Math.round((agent.elapsed - agent.threshold)/60);
 
   return (
     <div
@@ -94,7 +94,7 @@ export function AlertCard({ agent }: AlertCardProps) {
 
         {/* FOOTER */}
         <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-          <span>Límite: {agent.threshold ?? '-'} seg</span>
+          <span>Límite: {agent.threshold/60} min</span>
           <span className="text-gray-400">
             Exceso: {formatElapsedTime(overTime) ?? '-'}
           </span>
