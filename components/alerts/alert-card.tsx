@@ -94,7 +94,7 @@ export function AlertCard({ agent }: AlertCardProps) {
 
         {/* FOOTER */}
         <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-          <span>Límite: {agent.threshold ?? '-'} min</span>
+          <span>Límite: {agent.threshold ?? '-'} seg</span>
           <span className="text-gray-400">
             Exceso: {formatElapsedTime(overTime) ?? '-'}
           </span>
