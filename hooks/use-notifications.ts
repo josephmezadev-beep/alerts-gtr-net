@@ -49,7 +49,7 @@ ${alert.status_name}: ${formatElapsedTime(alert.elapsed)} (Límite: ${alert.thre
         notification.close();
       };
 
-      setTimeout(() => notification.close(), 10000);
+      setTimeout(() => notification.close(), 5000);
     },
     [permission]
   );
